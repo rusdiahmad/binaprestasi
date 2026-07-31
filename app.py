@@ -17,7 +17,8 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "📝 Input Jurnal & Absensi", 
     "📊 Rekapitulasi Jurnal", 
     "📅 Jadwal Pelajaran",
-    "🏆 Rekap Hasil Lomba"
+    "🏆 Rekap Hasil Lomba",
+    "🎯 Prediksi Nilai & Jurusan"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
@@ -102,3 +103,45 @@ elif menu == "🏆 Rekap Hasil Lomba":
             
     except Exception as e:
         st.error(f"Gagal memuat data dari Google Drive. Pastikan link Google Sheet sudah disetel 'Anyone with the link can view'. (Error: {e})")
+
+
+# ================= MENU 5: PREDIKSI NILAI & JURUSAN =================
+elif menu == "🎯 Prediksi Nilai & Jurusan":
+    st.subheader("🎯 Simulasi & Prediksi Peluang Jurusan PTN / Peminatan")
+    st.write("Gunakan simulasi ini untuk memetakan estimasi peluang berdasarkan rata-rata nilai akademik atau hasil tryout siswa.")
+
+    with st.form("prediksi_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            nama_siswa = st.text_input("Nama Siswa", placeholder="Contoh: Ahmad")
+            pilihan_jurusan = st.text_input("Target Jurusan / Program Studi", placeholder="Contoh: Kedokteran / Teknik Informatika")
+        with col2:
+            ptn_tujuan = st.text_input("Target Perguruan Tinggi (PTN)", placeholder="Contoh: Universitas Indonesia / ITB")
+            rata_nilai = st.number_input("Rata-rata Nilai / Skor Tryout (Skala 0 - 1000 atau 0 - 100)", min_value=0.0, max_value=1000.0, value=750.0)
+        
+        submitted_prediksi = st.form_submit_button("Analisis & Prediksi Peluang")
+
+        if submitted_prediksi:
+            st.markdown("---")
+            st.markdown(f"### Hasil Analisis untuk: **{nama_siswa}**")
+            st.write(f"🎯 **Target:** {pilihan_jurusan} di {ptn_tujuan}")
+            st.write(f"📊 **Skor/Nilai Masukan:** {rata_nilai}")
+
+            # Logika Simulasi Sederhana (Bisa disesuaikan standarnya)
+            if rata_nilai >= 800:
+                st.success("🔥 **Peluang Sangat Tinggi!** Skor Anda sangat kompetitif untuk target jurusan tersebut. Pertahankan konsistensi belajar!")
+            elif rata_nilai >= 700:
+                st.info("👍 **Peluang Kompetitif (Sedang-Tinggi).** Nilai Anda sudah bagus, namun perlu dioptimalkan pada subtes yang masih menjadi kelemahan.")
+            elif rata_nilai >= 600:
+                st.warning("⚠️ **Peluang Cukup / Butuh Perjuangan Ekstra.** Perlu peningkatan intensitas latihan soal dan pendalaman materi spesifik di bimbingan.")
+            else:
+                st.error("🚨 **Peluang Masih Rendah.** Disarankan untuk memperkuat konsep dasar materi atau mempertimbangkan strategi pemilihan jurusan alternatif.")
+                
+            st.info("💡 *Catatan: Hasil analisis ini bersifat simulasi prediktif mandiri sebagai acuan motivasi belajar.*")
+
+    st.markdown("---")
+    st.subheader("📁 Panduan & Rekomendasi Jurusan Berdasarkan Minat")
+    st.write("Anda juga dapat melampirkan dokumen panduan rumpun ilmu (Saintek/Soshum) atau kuesioner minat bakat di sini.")
+    
+    # Tombol atau info tambahan jika ingin dihubungkan ke file panduan di Drive
+    st.markdown("- [🔗 Lihat Panduan Pemilihan Jurusan SNBT/UTBK (Google Drive)](https://drive.google.com)")
