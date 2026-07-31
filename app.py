@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import date
-import os
 
 # Konfigurasi halaman Streamlit
 st.set_page_config(
@@ -9,20 +7,6 @@ st.set_page_config(
     page_icon="📚",
     layout="wide"
 )
-
-# Nama file CSV untuk penyimpanan data lokal
-CSV_FILE = "data_jurnal.csv"
-
-# Fungsi untuk memuat data dari file CSV
-def load_data():
-    if os.path.exists(CSV_FILE):
-        try:
-            return pd.read_csv(CSV_FILE)
-        except Exception:
-            # Jika file kosong atau rusak, buat dataframe kosong dengan kolom yang sesuai
-            return pd.DataFrame(columns=["Tanggal", "Waktu", "Nama Guru", "Mapel / Bidang", "Kelas", "Materi"])
-    else:
-        return pd.DataFrame(columns=["Tanggal", "Waktu", "Nama Guru", "Mapel / Bidang", "Kelas", "Materi"])
 
 # Judul Utama Web
 st.title("📚 Bina Prestasi SMA BPIBS")
@@ -39,66 +23,38 @@ menu = st.sidebar.selectbox("Pilih Menu", [
 # ================= MENU 1: INPUT JURNAL =================
 if menu == "📝 Input Jurnal & Absensi":
     st.subheader("Form Jurnal & Presensi Mengajar")
-    st.write("Silakan isi form di bawah ini untuk mencatat kegiatan belajar mengajar.")
-
-    with st.form("attendance_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            tanggal_mengajar = st.date_input("Tanggal Mengajar", value=date.today())
-            nama_guru = st.text_input("Nama Guru", placeholder="Contoh: Fulan")
-            kelas = st.text_input("Kelas", placeholder="Contoh: X.1, X.2 (Bisa lebih dari satu kelas)")
-        with col2:
-            waktu = st.text_input("Waktu (JP / Jam)", placeholder="Contoh:08.00 - 09.30")
-            mapel_bidang = st.text_input("Mapel / Bidang", placeholder="Contoh: OSN Matematika / Matematika Wajib")
-        
-        materi = st.text_area("Materi Pembelajaran", placeholder="Tuliskan pokok bahasan atau materi yang diajarkan...")
-        
-        submitted = st.form_submit_button("Simpan Jurnal Mengajar")
-
-        if submitted:
-            if not nama_guru or not mapel_bidang or not kelas or not materi:
-                st.warning("⚠️ Mohon lengkapi semua kolom yang wajib diisi!")
-            else:
-                try:
-                    # Muat data lama
-                    df = load_data()
-                    
-                    # Buat baris data baru
-                    new_data = pd.DataFrame([{
-                        "Tanggal": str(tanggal_mengajar),
-                        "Waktu": waktu,
-                        "Nama Guru": nama_guru,
-                        "Mapel / Bidang": mapel_bidang,
-                        "Kelas": kelas,
-                        "Materi": materi
-                    }])
-                    
-                    # Gabungkan data lama dan baru
-                    df = pd.concat([new_data, df], ignore_index=True)
-                    
-                    # Simpan kembali ke file CSV
-                    df.to_csv(CSV_FILE, index=False)
-                    
-                    st.success("✅ Berhasil! Jurnal mengajar telah tersimpan.")
-                except Exception as e:
-                    st.error(f"❌ Gagal menyimpan data: {e}")
+    st.write("Silakan isi jurnal dan absensi mengajar melalui Google Form di bawah ini:")
+    
+    # Menampilkan Google Form secara langsung (embedded iframe)
+    google_form_url = "https://forms.gle/cotZpQoxS4CxxKDr6"
+    st.markdown(f'<iframe src="{google_form_url}" width="100%" height="800px" frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>', unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.write("Atau klik tombol berikut jika form di atas tidak muncul:")
+    st.link_button("Buka Google Form Jurnal & Absensi", google_form_url)
 
 # ================= MENU 2: REKAPITULASI JURNAL =================
 elif menu == "📊 Rekapitulasi Jurnal":
     st.subheader("Rekapitulasi Jurnal & Kegiatan Mengajar")
-    st.write("Berikut adalah daftar seluruh jurnal mengajar yang telah terekam.")
+    st.write("Berikut adalah daftar seluruh jurnal mengajar yang terhubung dari Google Sheets.")
 
-    if st.button("🔄 Muat Ulang Data"):
+    if st.button("🔄 Muat Ulang Data Jurnal"):
         st.rerun()
 
-    df = load_data()
-
-    if not df.empty:
-        # Tampilkan sebagai tabel interaktif
-        st.dataframe(df, use_container_width=True)
-        st.info(f"Total jurnal tercatat: {len(df)} kegiatan.")
-    else:
-        st.info("Belum ada data jurnal yang tersimpan.")
+    try:
+        sheet_id_jurnal = "1JeHrxcJBPG-mzqOsHinefcsbtoMsEBLtf6RAkoFYyH0"
+        csv_url_jurnal = f"https://docs.google.com/spreadsheets/d/{sheet_id_jurnal}/export?format=csv"
+        
+        df_jurnal = pd.read_csv(csv_url_jurnal)
+        
+        if not df_jurnal.empty:
+            st.dataframe(df_jurnal, use_container_width=True)
+            st.info(f"Total jurnal tercatat: {len(df_jurnal)} baris.")
+        else:
+            st.info("File Google Sheet rekap jurnal saat ini masih kosong.")
+            
+    except Exception as e:
+        st.error(f"Gagal memuat data rekap dari Google Drive. Pastikan link Google Sheet sudah disetel 'Anyone with the link can view'. (Error: {e})")
 
 # ================= MENU 3: JADWAL PELAJARAN =================
 elif menu == "📅 Jadwal Pelajaran":
@@ -133,16 +89,16 @@ elif menu == "🏆 Rekap Hasil Lomba":
         st.rerun()
 
     try:
-        sheet_id = "1ANrCscXUyYv3oh-WSbTVfSptcc7iqDfJggjun6ec5Z4"
-        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        sheet_id_lomba = "1ANrCscXUyYv3oh-WSbTVfSptcc7iqDfJggjun6ec5Z4"
+        csv_url_lomba = f"https://docs.google.com/spreadsheets/d/{sheet_id_lomba}/export?format=csv"
         
-        df_lomba = pd.read_csv(csv_url)
+        df_lomba = pd.read_csv(csv_url_lomba)
         
         if not df_lomba.empty:
             st.dataframe(df_lomba, use_container_width=True)
             st.info(f"Total data lomba tercatat: {len(df_lomba)} baris.")
         else:
-            st.info("File Google Sheet saat ini masih kosong.")
+            st.info("File Google Sheet lomba saat ini masih kosong.")
             
     except Exception as e:
         st.error(f"Gagal memuat data dari Google Drive. Pastikan link Google Sheet sudah disetel 'Anyone with the link can view'. (Error: {e})")
