@@ -29,7 +29,12 @@ st.title("📚 Bina Prestasi SMA BPIBS")
 st.markdown("Tahun Pelajaran 2026/2027 — Sistem Jurnal Mengajar & Rekapitulasi")
 
 # Menu Navigasi di Sidebar
-menu = st.sidebar.selectbox("Pilih Menu", ["📝 Input Jurnal & Absensi", "📊 Rekapitulasi Jurnal", "📅 Jadwal Pelajaran"])
+menu = st.sidebar.selectbox("Pilih Menu", [
+    "📝 Input Jurnal & Absensi", 
+    "📊 Rekapitulasi Jurnal", 
+    "📅 Jadwal Pelajaran",
+    "🏆 Rekap Hasil Lomba"
+])
 
 # ================= MENU 1: INPUT JURNAL =================
 if menu == "📝 Input Jurnal & Absensi":
@@ -117,5 +122,27 @@ elif menu == "📅 Jadwal Pelajaran":
             {"JP": "JP 4", "X.3": "Biologi (Ustadzah Windy)", "X.4": "Fisika (Ustadzah Erlina)", "XI.3": "-", "XI.4": "-"},
             {"JP": "JP 5", "X.3": "Diniyah (Ustadzah Nanda)", "X.4": "Bahasa Indonesia (Ustadzah Yullie)", "XI.3": "Ekonomi (Ustadzah Nashibah)", "XI.4": "Matematika (Ustadzah Hasri)"}
         ]
-        st.table(pd.DataFrame(data_akhwat)) 
+        st.table(pd.DataFrame(data_akhwat))
 
+# ================= MENU 4: REKAP HASIL LOMBA =================
+elif menu == "🏆 Rekap Hasil Lomba":
+    st.subheader("🏆 Rekapitulasi Hasil Lomba")
+    st.write("Berikut adalah data rekap hasil lomba yang terhubung langsung dari Google Drive.")
+
+    if st.button("🔄 Muat Ulang Data Lomba"):
+        st.rerun()
+
+    try:
+        sheet_id = "1ANrCscXUyYv3oh-WSbTVfSptcc7iqDfJggjun6ec5Z4"
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        
+        df_lomba = pd.read_csv(csv_url)
+        
+        if not df_lomba.empty:
+            st.dataframe(df_lomba, use_container_width=True)
+            st.info(f"Total data lomba tercatat: {len(df_lomba)} baris.")
+        else:
+            st.info("File Google Sheet saat ini masih kosong.")
+            
+    except Exception as e:
+        st.error(f"Gagal memuat data dari Google Drive. Pastikan link Google Sheet sudah disetel 'Anyone with the link can view'. (Error: {e})")
