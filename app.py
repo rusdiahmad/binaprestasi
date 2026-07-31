@@ -35,10 +35,10 @@ if menu == "📝 Input Jurnal & Absensi":
         col1, col2 = st.columns(2)
         with col1:
             tanggal_mengajar = st.date_input("Tanggal Mengajar", value=date.today())
-            nama_guru = st.text_input("Nama Guru", placeholder="Contoh: Ust. Rusdi")
+            nama_guru = st.text_input("Nama Guru", placeholder="Contoh: Fulan")
             kelas = st.text_input("Kelas", placeholder="Contoh: X.1, X.2 (Bisa lebih dari satu kelas)")
         with col2:
-            waktu = st.text_input("Waktu (JP / Jam)", placeholder="Contoh: JP 3 (08.00 - 09.30)")
+            waktu = st.text_input("Waktu (JP / Jam)", placeholder="Contoh: 08.00 - 09.30")
             mapel_bidang = st.text_input("Mapel / Bidang", placeholder="Contoh: OSN Matematika / Matematika Wajib")
         
         materi = st.text_area("Materi Pembelajaran", placeholder="Tuliskan pokok bahasan atau materi yang diajarkan...")
