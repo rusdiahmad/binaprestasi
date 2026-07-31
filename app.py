@@ -1,7 +1,7 @@
 import streamlit as st
-from supabase import create_client, Client
 import pandas as pd
 from datetime import date
+import os
 
 # Konfigurasi halaman Streamlit
 st.set_page_config(
@@ -10,14 +10,19 @@ st.set_page_config(
     layout="wide"
 )
 
-# Inisialisasi koneksi Supabase menggunakan st.secrets (aman untuk deployment)
-@st.cache_resource
-def init_supabase():
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_ANON_KEY"]
-    return create_client(url, key)
+# Nama file CSV untuk penyimpanan data lokal
+CSV_FILE = "data_jurnal.csv"
 
-supabase: Client = init_supabase()
+# Fungsi untuk memuat data dari file CSV
+def load_data():
+    if os.path.exists(CSV_FILE):
+        try:
+            return pd.read_csv(CSV_FILE)
+        except Exception:
+            # Jika file kosong atau rusak, buat dataframe kosong dengan kolom yang sesuai
+            return pd.DataFrame(columns=["Tanggal", "Waktu", "Nama Guru", "Mapel / Bidang", "Kelas", "Materi"])
+    else:
+        return pd.DataFrame(columns=["Tanggal", "Waktu", "Nama Guru", "Mapel / Bidang", "Kelas", "Materi"])
 
 # Judul Utama Web
 st.title("📚 Bina Prestasi SMA BPIBS")
@@ -35,10 +40,10 @@ if menu == "📝 Input Jurnal & Absensi":
         col1, col2 = st.columns(2)
         with col1:
             tanggal_mengajar = st.date_input("Tanggal Mengajar", value=date.today())
-            nama_guru = st.text_input("Nama Guru", placeholder="Contoh: Fulan")
+            nama_guru = st.text_input("Nama Guru", placeholder="Contoh: Ust. Rusdi")
             kelas = st.text_input("Kelas", placeholder="Contoh: X.1, X.2 (Bisa lebih dari satu kelas)")
         with col2:
-            waktu = st.text_input("Waktu (JP / Jam)", placeholder="Contoh: 08.00 - 09.30")
+            waktu = st.text_input("Waktu (JP / Jam)", placeholder="Contoh: JP 3 (08.00 - 09.30)")
             mapel_bidang = st.text_input("Mapel / Bidang", placeholder="Contoh: OSN Matematika / Matematika Wajib")
         
         materi = st.text_area("Materi Pembelajaran", placeholder="Tuliskan pokok bahasan atau materi yang diajarkan...")
@@ -50,55 +55,45 @@ if menu == "📝 Input Jurnal & Absensi":
                 st.warning("⚠️ Mohon lengkapi semua kolom yang wajib diisi!")
             else:
                 try:
-                    # Data yang akan dikirim ke tabel 'attendance' Supabase
-                    data_to_insert = {
-                        "tanggal_mengajar": str(tanggal_mengajar),
-                        "waktu": waktu,
-                        "nama_guru": nama_guru,
-                        "mapel_bidang": mapel_bidang,
-                        "kelas": kelas,
-                        "materi": materi
-                    }
+                    # Muat data lama
+                    df = load_data()
                     
-                    response = supabase.table("attendance").insert(data_to_insert).execute()
-                    st.success("✅ Berhasil! Jurnal mengajar telah tersimpan ke database Supabase.")
+                    # Buat baris data baru
+                    new_data = pd.DataFrame([{
+                        "Tanggal": str(tanggal_mengajar),
+                        "Waktu": waktu,
+                        "Nama Guru": nama_guru,
+                        "Mapel / Bidang": mapel_bidang,
+                        "Kelas": kelas,
+                        "Materi": materi
+                    }])
+                    
+                    # Gabungkan data lama dan baru
+                    df = pd.concat([new_data, df], ignore_index=True)
+                    
+                    # Simpan kembali ke file CSV
+                    df.to_csv(CSV_FILE, index=False)
+                    
+                    st.success("✅ Berhasil! Jurnal mengajar telah tersimpan.")
                 except Exception as e:
                     st.error(f"❌ Gagal menyimpan data: {e}")
 
 # ================= MENU 2: REKAPITULASI JURNAL =================
 elif menu == "📊 Rekapitulasi Jurnal":
     st.subheader("Rekapitulasi Jurnal & Kegiatan Mengajar")
-    st.write("Berikut adalah daftar seluruh jurnal mengajar yang telah terekam di database.")
+    st.write("Berikut adalah daftar seluruh jurnal mengajar yang telah terekam.")
 
-    # Tombol Refresh Data
     if st.button("🔄 Muat Ulang Data"):
         st.rerun()
 
-    try:
-        # Ambil data dari tabel 'attendance'
-        response = supabase.table("attendance").select("*").order("tanggal_mengajar", desc=True).execute()
-        data = response.data
+    df = load_data()
 
-        if data:
-            df = pd.DataFrame(data)
-            
-            # Rapikan nama kolom untuk ditampilkan ke tabel
-            df = df.rename(columns={
-                "tanggal_mengajar": "Tanggal",
-                "waktu": "Waktu",
-                "nama_guru": "Nama Guru",
-                "mapel_bidang": "Mapel / Bidang",
-                "kelas": "Kelas",
-                "materi": "Materi"
-            })
-            
-            # Tampilkan sebagai tabel interaktif
-            st.dataframe(df[["Tanggal", "Waktu", "Nama Guru", "Mapel / Bidang", "Kelas", "Materi"]], use_container_width=True)
-            st.info(f"Total jurnal tercatat: {len(df)} kegiatan.")
-        else:
-            st.info("Belum ada data jurnal yang tersimpan.")
-    except Exception as e:
-        st.error(f"Gagal memuat data dari database: {e}")
+    if not df.empty:
+        # Tampilkan sebagai tabel interaktif
+        st.dataframe(df, use_container_width=True)
+        st.info(f"Total jurnal tercatat: {len(df)} kegiatan.")
+    else:
+        st.info("Belum ada data jurnal yang tersimpan.")
 
 # ================= MENU 3: JADWAL PELAJARAN =================
 elif menu == "📅 Jadwal Pelajaran":
