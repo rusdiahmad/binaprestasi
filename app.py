@@ -19,8 +19,7 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "🏆 Rekap Hasil Lomba",
     "📄 Generator CV Prestasi",
     "📊 Statistik & Analisis",
-    "🗓️ Timeline Program",
-    "🧭 Tes Psikotes Minat"
+    "🗓️ Timeline Program"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
