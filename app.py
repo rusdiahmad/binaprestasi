@@ -104,6 +104,7 @@ elif menu == "🏆 Rekap Hasil Lomba":
     except Exception as e:
         st.error(f"Gagal memuat data dari Google Drive. Pastikan link Google Sheet sudah disetel 'Anyone with the link can view'. (Error: {e})") 
 
+
 # ================= MENU 5: GENERATOR CV PRESTASI SISWA =================
 elif menu == "📄 Generator CV Prestasi":
     st.subheader("📄 Generator Gambar CV Prestasi Siswa")
@@ -143,7 +144,7 @@ elif menu == "📄 Generator CV Prestasi":
                     df_prestasi_siswa = df_lomba[df_lomba[kolom_nama].astype(str).str.strip() == str(selected_student).strip()]
                     
                     # Membuat Plot Matplotlib sebagai Gambar CV
-                    fig, ax = plt.subplots(figsize=(8.5, 11)) # Ukuran standar kertas surat (Letter/A4 aspect)
+                    fig, ax = plt.subplots(figsize=(8.5, 11))
                     ax.axis('off')
                     
                     # Background putih bersih
@@ -165,19 +166,26 @@ elif menu == "📄 Generator CV Prestasi":
                     profil_text = f"Siswa aktif di Bina Prestasi SMA BPIBS Bogor dengan fokus kompetensi di bidang akademik dan riset.\nKeahlian: {keahlian}"
                     ax.text(0.05, 0.64, profil_text, fontsize=9.5, color='#333333', transform=ax.transAxes, va='top', wrap=True)
                     
-                    # Bagian 2: Rekam Jejak Prestasi
+                    # Bagian 2: Rekam Jejak Prestasi (Difilter sesuai kolom pilihan Anda)
                     ax.text(0.05, 0.53, "DAFTAR PRESTASI & KOMPETISI", fontsize=11, fontweight='bold', color='#1f4e78', transform=ax.transAxes)
                     ax.axhline(y=0.515, xmin=0.05, xmax=0.95, color='#1f4e78', linewidth=1.5)
                     
-                    # Menuliskan daftar prestasi ke gambar
                     y_pos = 0.47
                     if not df_prestasi_siswa.empty:
                         for idx, row in df_prestasi_siswa.iterrows():
                             if y_pos < 0.05:
-                                break # Batasi jika terlalu banyak
-                            # Ambil isi baris selain kolom nama
-                            row_details = " | ".join([f"{val}" for col, val in row.items() if col != kolom_nama])
-                            ax.text(0.05, y_pos, f"• {row_details}", fontsize=9, color='#222222', transform=ax.transAxes, wrap=True)
+                                break
+                            
+                            # Mencari kolom secara fleksibel yang mendekati kata kunci yang Anda inginkan
+                            val_hasil = next((str(row[c]) for c in df_prestasi_siswa.columns if 'hasil' in c.lower() or 'juara' in c.lower()), "-")
+                            val_lomba = next((str(row[c]) for c in df_prestasi_siswa.columns if 'nama' in c.lower() and c != kolom_nama or 'lomba' in c.lower() or 'event' in c.lower()), "-")
+                            val_jenis = next((str(row[c]) for c in df_prestasi_siswa.columns if 'jenis' in c.lower() or 'kategori' in c.lower() or 'bidang' in c.lower()), "-")
+                            val_waktu = next((str(row[c]) for c in df_prestasi_siswa.columns if 'waktu' in c.lower() or 'tanggal' in c.lower() or 'tahun' in c.lower()), "-")
+                            
+                            # Format teks baris prestasi sesuai permintaan: Hasil | Nama Lomba | Jenis Lomba | Waktu
+                            baris_prestasi = f"• [{val_hasil}] {val_lomba} ({val_jenis}) — {val_waktu}"
+                            
+                            ax.text(0.05, y_pos, baris_prestasi, fontsize=9, color='#222222', transform=ax.transAxes, wrap=True)
                             y_pos -= 0.055
                     else:
                         ax.text(0.05, 0.45, "• Belum ada catatan prestasi spesifik yang terinput di sistem.", fontsize=9, style='italic', color='#555555', transform=ax.transAxes)
