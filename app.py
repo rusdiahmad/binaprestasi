@@ -19,7 +19,8 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "📅 Jadwal Pelajaran",
     "🏆 Rekap Hasil Lomba",
     "📄 Generator CV Prestasi",
-    "📊 Statistik & Analisis"
+    "📊 Statistik & Analisis",
+    "🗓️ Timeline Program"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
@@ -273,5 +274,40 @@ elif menu == "📊 Statistik & Analisis":
                 st.info("Kolom hasil/juara tidak terdeteksi secara otomatis untuk grafik capaian.")
 
     except Exception as e:
-        st.error(f"Gagal memuat data statistik dari Google Drive. Pastikan pengaturan sharing Google Sheet sudah benar. Detail error: {e}")
+        st.error(f"Gagal memuat data statistik dari Google Drive. Pastikan pengaturan sharing Google Sheet sudah benar. Detail error: {e}")  
+
+
+# ================= MENU 7: TIMELINE PROGRAM BINA PRESTASI =================
+elif menu == "🗓️ Timeline Program":
+    st.subheader("🗓️ Timeline Program Bina Prestasi BPIBS")
+    st.markdown("**Tahun Pelajaran 2026 / 2027** — Program pembinaan berkelanjutan untuk mencetak generasi berprestasi yang unggul dalam akademik dan kompetisi tingkat nasional.")
+    st.markdown("---")
+
+    # Data timeline sesuai dengan infografis resmi
+    timeline_data = [
+        {"Periode": "20 - 25 Juli 2026", "Agenda Kegiatan": "Pekan Matrikulasi"},
+        {"Periode": "27 Juli - 8 Agustus 2026", "Agenda Kegiatan": "Seleksi Peserta Pembinaan"},
+        {"Periode": "10 Agustus - 12 September 2026", "Agenda Kegiatan": "Pembinaan Materi Dasar I"},
+        {"Periode": "14 - 26 September 2026", "Agenda Kegiatan": "Masa ASTS"},
+        {"Periode": "28 September - 28 November 2026", "Agenda Kegiatan": "Pembinaan Materi Dasar II"},
+        {"Periode": "30 November - 12 Desember 2026", "Agenda Kegiatan": "Masa ASAS"},
+        {"Periode": "14 - 18 Desember 2026", "Agenda Kegiatan": "Pembinaan Materi Lanjutan I"},
+        {"Periode": "21 Desember 2026 - 9 Januari 2027", "Agenda Kegiatan": "Libur"},
+        {"Periode": "11 Januari - 13 Februari 2027", "Agenda Kegiatan": "Pembinaan Materi Lanjutan II"},
+        {"Periode": "15 - 20 Februari 2027", "Agenda Kegiatan": "Seleksi OSN Tingkat Sekolah"},
+        {"Periode": "22 - 28 Februari 2027", "Agenda Kegiatan": "Perkiraan Pendaftaran OSN-K"},
+        {"Periode": "1 - 28 Maret 2027", "Agenda Kegiatan": "Libur dan Masa ASTS"},
+        {"Periode": "29 Maret - 29 Mei 2027", "Agenda Kegiatan": "Pembinaan OSN-K"},
+        {"Periode": "31 Mei - 5 Juni 2027", "Agenda Kegiatan": "Masa ASAT"},
+        {"Periode": "6 Juni 2027 hingga Pelaksanaan OSN-K", "Agenda Kegiatan": "Pembinaan OSN-K"}
+    ]
+
+    df_timeline = pd.DataFrame(timeline_data)
+
+    # Menampilkan dalam bentuk tabel interaktif yang rapi
+    st.dataframe(df_timeline, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+    st.info("💡 **Catatan:** Timeline ini menjadi acuan utama pelaksanaan program pembinaan akademik dan persiapan kompetisi sains di lingkungan SMA BPIBS Bogor T.A. 2026/2027.")
+
 
