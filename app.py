@@ -16,7 +16,6 @@ st.markdown("Tahun Pelajaran 2026/2027 — Sistem Jurnal Mengajar & Rekapitulasi
 menu = st.sidebar.selectbox("Pilih Menu", [
     "📝 Input Jurnal & Absensi", 
     "📊 Rekapitulasi Jurnal", 
-    "📅 Jadwal Pelajaran",
     "🏆 Rekap Hasil Lomba",
     "📄 Generator CV Prestasi",
     "📊 Statistik & Analisis",
