@@ -133,7 +133,7 @@ elif menu == "📄 Generator CV Prestasi":
                 
                 col_cv1, col_cv2 = st.columns(2)
                 with col_cv1:
-                    nisn_kelas = st.text_input("Kelas / NISN", value="SMA BPIBS Bogor")
+                    nisn_kelas = st.text_input("Kelas / NISN", value="SMA BPIBS")
                     target_karier = st.text_input("Target / Minat Studi", value="Sains & Teknologi / PTN")
                 with col_cv2:
                     email_kontak = st.text_input("Kontak / Email", value="siswa@bpibs.sch.id")
@@ -163,7 +163,7 @@ elif menu == "📄 Generator CV Prestasi":
                     ax.text(0.05, 0.72, "PROFIL & KEAHLIAN UTAMA", fontsize=11, fontweight='bold', color='#1f4e78', transform=ax.transAxes)
                     ax.axhline(y=0.705, xmin=0.05, xmax=0.95, color='#1f4e78', linewidth=1.5)
                     
-                    profil_text = f"Siswa aktif di Bina Prestasi SMA BPIBS Bogor dengan fokus kompetensi di bidang akademik dan riset.\nKeahlian: {keahlian}"
+                    profil_text = f"Siswa aktif di SMA BPIBS dengan fokus kompetensi di bidang akademik dan riset.\nKeahlian: {keahlian}"
                     ax.text(0.05, 0.64, profil_text, fontsize=9.5, color='#333333', transform=ax.transAxes, va='top', wrap=True)
                     
                     # Bagian 2: Rekam Jejak Prestasi (Difilter sesuai kolom pilihan Anda)
