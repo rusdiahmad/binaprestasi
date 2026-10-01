@@ -18,7 +18,8 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "📊 Rekapitulasi Jurnal", 
     "📅 Jadwal Pelajaran",
     "🏆 Rekap Hasil Lomba",
-    "📄 Generator CV Prestasi"
+    "📄 Generator CV Prestasi",
+    "📊 Statistik & Analisis"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
@@ -214,3 +215,63 @@ elif menu == "📄 Generator CV Prestasi":
                 st.error("Kolom 'Nama' tidak ditemukan di Google Sheet Rekap Hasil Lomba.")
     except Exception as e:
         st.error(f"Terjadi kesalahan saat membuat gambar CV: {e}")
+
+
+# ================= MENU 6: STATISTIK & ANALISIS PRESTASI =================
+elif menu == "📊 Statistik & Analisis":
+    st.subheader("📊 Dashboard Statistik & Analisis Prestasi Siswa")
+    st.write("Visualisasi data perolehan prestasi dan kompetisi yang terhubung langsung dari Google Sheet.")
+
+    if st.button("🔄 Muat Ulang Statistik"):
+        st.rerun()
+
+    try:
+        sheet_id_lomba = "1ANrCscXUyYv3oh-WSbTVfSptcc7iqDfJggjun6ec5Z4"
+        csv_url_lomba = f"https://docs.google.com/spreadsheets/d/{sheet_id_lomba}/export?format=csv"
+        df_lomba = pd.read_csv(csv_url_lomba)
+        
+        if df_lomba.empty:
+            st.info("File Google Sheet lomba saat ini masih kosong, belum ada statistik yang dapat ditampilkan.")
+        else:
+            # Menampilkan Metrik Utama (Angka Ringkasan)
+            total_prestasi = len(df_lomba)
+            
+            # Mendeteksi kolom bidang/jenis lomba dan hasil secara fleksibel
+            kolom_jenis = next((c for c in df_lomba.columns if 'jenis' in c.lower() or 'kategori' in c.lower() or 'bidang' in c.lower()), None)
+            kolom_hasil = next((c for c in df_lomba.columns if 'hasil' in c.lower() or 'juara' in c.lower()), None)
+            
+            col_m1, col_m2 = st.columns(2)
+            with col_m1:
+                st.metric(label="🏆 Total Rekor Prestasi Tercatat", value=total_prestasi)
+            with col_m2:
+                jumlah_siswa_berprestasi = len(df_lomba.iloc[:, 0].dropna().unique()) if not df_lomba.empty else 0
+                st.metric(label="👥 Jumlah Talenta Siswa Terdata", value=jumlah_siswa_berprestasi)
+
+            st.markdown("---")
+
+            # Grafik 1: Distribusi Berdasarkan Bidang / Jenis Lomba
+            if kolom_jenis:
+                st.markdown("#### 📈 Distribusi Prestasi Berdasarkan Bidang / Jenis Lomba")
+                df_jenis_count = df_lomba[kolom_jenis].value_counts().reset_index()
+                df_jenis_count.columns = ['Bidang / Jenis', 'Jumlah']
+                
+                # Menampilkan Bar Chart Interaktif
+                st.bar_chart(df_jenis_count.set_index('Bidang / Jenis'))
+            else:
+                st.info("Kolom kategori/jenis lomba tidak terdeteksi secara otomatis untuk grafik bidang.")
+
+            st.markdown("---")
+
+            # Grafik 2: Distribusi Berdasarkan Hasil / Capaian Juara
+            if kolom_hasil:
+                st.markdown("#### 🥇 Rangkuman Capaian / Medali")
+                df_hasil_count = df_lomba[kolom_hasil].value_counts().reset_index()
+                df_hasil_count.columns = ['Capaian', 'Jumlah']
+                
+                st.bar_chart(df_hasil_count.set_index('Capaian'))
+            else:
+                st.info("Kolom hasil/juara tidak terdeteksi secara otomatis untuk grafik capaian.")
+
+    except Exception as e:
+        st.error(f"Gagal memuat data statistik dari Google Drive. Pastikan pengaturan sharing Google Sheet sudah benar. Detail error: {e}")
+
