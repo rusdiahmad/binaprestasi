@@ -311,7 +311,7 @@ elif menu == "🗓️ Timeline Program":
     st.info("💡 **Catatan:** Timeline ini menjadi acuan utama pelaksanaan program pembinaan akademik dan persiapan kompetisi sains di lingkungan SMA BPIBS Bogor T.A. 2026/2027.")
 
 
-# ================= MENU 9: TES PSIKOTES MINAT & REKOMENDASI PUSPRESNAS =================
+# ================= MENU 8: TES PSIKOTES MINAT & REKOMENDASI PUSPRESNAS =================
 elif menu == "🧭 Tes Psikotes Minat":
     st.subheader("🧭 Tes Psikotes Diagnostik Ajang Talenta Puspresnas")
     st.write("Pilihlah jawaban yang paling mencerminkan diri Anda pada setiap situasi berikut. Hasil tes akan memetakan potensi terbaik Anda di ajang talenta nasional.")
