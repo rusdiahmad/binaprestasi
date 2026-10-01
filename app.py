@@ -19,7 +19,8 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "🏆 Rekap Hasil Lomba",
     "📄 Generator CV Prestasi",
     "📊 Statistik & Analisis",
-    "🗓️ Timeline Program"
+    "🗓️ Timeline Program",
+    "🧭 Tes Minat & Rekomendasi"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
@@ -308,5 +309,89 @@ elif menu == "🗓️ Timeline Program":
 
     st.markdown("---")
     st.info("💡 **Catatan:** Timeline ini menjadi acuan utama pelaksanaan program pembinaan akademik dan persiapan kompetisi sains di lingkungan SMA BPIBS Bogor T.A. 2026/2027.")
+
+
+# ================= MENU 8: TES MINAT BAKAT & REKOMENDASI PUSPRESNAS =================
+elif menu == "🧭 Tes Minat & Rekomendasi":
+    st.subheader("🧭 Tes Minat Bakat & Pemetaan Talenta Ajang Puspresnas")
+    st.write("Jawab pertanyaan berikut untuk memetakan minat dan mencocokkan Anda dengan ajang talenta resmi Puspresnas (OSN, OPSI, LDBI, NSDC, FLS2N, dll.).")
+
+    with st.form("form_minat_puspresnas"):
+        nama_peserta = st.text_input("Nama Siswa", placeholder="Contoh: Ahmad")
+        
+        st.markdown("---")
+        st.markdown("#### Berikan penilaian ketertarikan Anda (Skala 1 = Sangat Tidak Setuju s.d. 5 = Sangat Setuju):")
+
+        # Pertanyaan diperluas spesifik per bidang
+        m_mat = st.slider("1. Saya sangat menikmati pemecahan masalah aljabar, teori bilangan, dan logika hitung tingkat lanjut (OSN Matematika).", 1, 5, 3)
+        m_fis = st.slider("2. Saya senang menganalisis fenomena mekanika, kelistrikan, dan hukum-hukum alam secara matematis (OSN Fisika).", 1, 5, 3)
+        m_kim = st.slider("3. Saya antusias mempelajari struktur molekul, stoikiometri, dan praktikum reaksi kimia (OSN Kimia).", 1, 5, 3)
+        m_bio = st.slider("4. Saya tertarik mempelajari sistem makhluk hidup, genetika, sel, dan ekosistem (OSN Biologi).", 1, 5, 3)
+        m_inf = st.slider("5. Saya suka ngoding, merancang struktur data, dan memecahkan masalah komputasi/algoritma (OSN Informatika).", 1, 5, 3)
+        m_eko = st.slider("6. Saya tertarik menganalisis ilmu ekonomi mikro/makro, pasar, dan fenomena keuangan (OSN Ekonomi).", 1, 5, 3)
+        m_opsi = st.slider("7. Saya suka meneliti, mencari solusi permasalahan nyata, dan menulis karya tulis ilmiah (OPSI / KTI).", 1, 5, 3)
+        m_ldbi = st.slider("8. Saya aktif berpendapat, suka berdebat kritis, dan menguasai teknik retorika berbahasa Indonesia (LDBI / Debat Bahasa Indonesia).", 1, 5, 3)
+        m_nsdc = st.slider("9. Saya percaya diri menyampaikan argumen kritis dan berpikir analitis menggunakan Bahasa Inggris (NSDC / National Schools Debating Championship).", 1, 5, 3)
+        m_fls = st.slider("10. Saya memiliki bakat dan ketertarikan tinggi pada bidang seni kreatif, musik, atau sastra (FLS2N).", 1, 5, 3)
+
+        submitted_tes_pro = st.form_submit_button("Analisis & Petakan Ajang Puspresnas")
+
+        if submitted_tes_pro:
+            st.markdown("---")
+            st.markdown(f"### 🎯 Hasil Pemetaan Talenta Puspresnas: **{nama_peserta}**")
+
+            # Kamus pemetaan skor lengkap dengan ajang resminya
+            skor_pilihan = {
+                "OSN Matematika": (m_mat * 2, "Olimpiade Sains Nasional (OSN) - Bidang Matematika"),
+                "OSN Fisika": (m_fis * 2, "Olimpiade Sains Nasional (OSN) - Bidang Fisika"),
+                "OSN Kimia": (m_kim * 2, "Olimpiade Sains Nasional (OSN) - Bidang Kimia"),
+                "OSN Biologi": (m_bio * 2, "Olimpiade Sains Nasional (OSN) - Bidang Biologi"),
+                "OSN Informatika": (m_inf * 2, "Olimpiade Sains Nasional (OSN) - Bidang Informatika"),
+                "OSN Ekonomi": (m_eko * 2, "Olimpiade Sains Nasional (OSN) - Bidang Ekonomi"),
+                "Karya Tulis Ilmiah (OPSI)": (m_opsi * 2, "Olimpiade Penelitian Siswa Indonesia (OPSI) / KTI"),
+                "Debat Bahasa Indonesia (LDBI)": (m_ldbi * 2, "Lomba Debat Bahasa Indonesia (LDBI)"),
+                "Debat Bahasa Inggris (NSDC)": (m_nsdc * 2, "National Schools Debating Championship (NSDC)"),
+                "Seni & Sastra (FLS2N)": (m_fls * 2, "Festival Lomba Seni Siswa Nasional (FLS2N)")
+            }
+
+            # Mencari skor tertinggi
+            bidang_tertinggi = max(skor_pilihan, key=lambda k: skor_pilihan[k][0])
+            info_utama = skor_pilihan[bidang_tertinggi]
+
+            st.success(f"🏆 **Rekomendasi Utama Ajang Talenta:** **{info_utama[1]}**")
+            
+            # Membuat tabel rekap seluruh bidang
+            data_tabel = []
+            for bidang, (skor, ajang) in skor_pilihan.items():
+                data_tabel.append({"Bidang Minat": bidang, "Ajang Puspresnas": ajang, "Skor Kecocokan": skor})
+            
+            df_hasil_tes = pd.DataFrame(data_tabel)
+            df_hasil_tes = df_hasil_tes.sort_values(by="Skor Kecocokan", ascending=False)
+
+            st.markdown("#### 📊 Rangkuman Peringkat Kecocokan Bidang:")
+            st.dataframe(df_hasil_tes, use_container_width=True, hide_index=True)
+
+            st.markdown("#### 💡 Rekomendasi Fokus Pembinaan Bina Prestasi:")
+            if "Matematika" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Bedah modul aljabar tingkat lanjut, teori bilangan, kombinatorika, dan geometri bidang datar.")
+            elif "Fisika" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Penguatan konsep mekanika analitik, termodinamika, elektromagnetisme, dan kalkulus fisika.")
+            elif "Kimia" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Pendalaman kesetimbangan kimia, termokimia, kimia organik dasar, dan stoikiometri kompleks.")
+            elif "Biologi" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Kajian fisiologi tumbuhan & hewan, genetika molekuler, biokimia, dan ekologi.")
+            elif "Informatika" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Latihan pemrograman kompetitif (C++/Python), struktur data (Tree, Graph), dan algoritma greedy/DP.")
+            elif "Ekonomi" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Pendalaman ekonomi mikro/makro, akuntansi perusahaan, perbankan, dan analisis kebijakan fiskal/moneter.")
+            elif "Karya Tulis" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Pelatihan metodologi penelitian ilmiah, penyusunan proposal riset, pengolahan data statistik, dan penulisan artikel ilmiah OPSI.")
+            elif "Bahasa Indonesia" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Latihan mosi debat nasional, teknik argumentasi, public speaking, dan pemahaman isu sosial kenegaraan (LDBI).")
+            elif "Bahasa Inggris" in bidang_tertinggi:
+                st.info("Fokus Pembinaan: Latihan mosi World Schools Style (WSDC/NSDC), pembendaharaan kosakata global, dan teknik sanggahan cepat dalam Bahasa Inggris.")
+            else:
+                st.info("Fokus Pembinaan: Eksplorasi kreativitas seni, latihan teknis penjiwaan/penulisan sastra, dan persiapan portofolio karya FLS2N.")
+
 
 
