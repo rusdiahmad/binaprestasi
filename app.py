@@ -17,7 +17,8 @@ menu = st.sidebar.selectbox("Pilih Menu", [
     "📝 Input Jurnal & Absensi", 
     "📊 Rekapitulasi Jurnal", 
     "📅 Jadwal Pelajaran",
-    "🏆 Rekap Hasil Lomba"
+    "🏆 Rekap Hasil Lomba",
+    "📄 Generator CV Prestasi"
 ])
 
 # ================= MENU 1: INPUT JURNAL =================
